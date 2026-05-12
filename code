@@ -1,0 +1,30 @@
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+# Load dataset
+df = pd.read_csv("C:\\Users\\Sandhiya\\OneDrive\\Movie.csv")
+print("Dataset Loaded Successfully\n")
+print(df)
+# Combine features
+df["features"] = df["Genre"] + " " + df["Language"] + " " + df["Year"].astype(str)
+# Convert text data to numbers
+vectorizer = CountVectorizer()
+matrix = vectorizer.fit_transform(df["features"])
+# Calculate similarity
+similarity = cosine_similarity(matrix)
+# Recommendation function
+def recommend(movie_name):
+    movie_name = movie_name.lower()
+    index = df[df["Movie"].str.lower() == movie_name].index
+    if len(index) == 0:
+        print("Movie not found in dataset")
+        return
+    index = index[0]
+    scores = list(enumerate(similarity[index]))
+    sorted_movies = sorted(scores, key=lambda x: x[1], reverse=True)
+    print("\nRecommended Movies:\n")
+    for i in sorted_movies[1:6]:
+        print(df.iloc[i[0]]["Movie"])
+# User input
+movie = input("Enter a movie name: ")
+recommend(movie)  
